@@ -75,6 +75,9 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("io.coil-kt:coil-gif:2.5.0")
 
+    // Pagination
+    implementation("androidx.paging:paging-compose:3.3.0-alpha02")
+
     // Tests
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
     testImplementation("com.squareup.retrofit2:retrofit:2.9.0")

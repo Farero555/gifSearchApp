@@ -1,20 +1,32 @@
 package com.example.gifsearchapp.repository
-//
-//import com.example.gifsearchapp.model.GiphySearchResponse
-//import com.example.gifsearchapp.network.GiphyAPI
-//import retrofit2.Response
-//import javax.inject.Inject
-//
-//class GiphyRepository @Inject constructor(private val api: GiphyAPI) {
-//
-//
-//    suspend fun getGiphyData(
-//        api_key: String,
-//        query: String,
-//        limit: Int,
-//        offset: Int,
-//        //rating: String
-//    ): Response<GiphySearchResponse> {
-//        return api.searchGifs(api_key,query,limit,offset)
-//    }
-//}
+
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import com.example.gifsearchapp.model.GifItem
+import com.example.gifsearchapp.network.GiphyAPI
+import com.example.gifsearchapp.util.Constants.API_KEY
+
+
+class GiphyRepository(
+    private val repository: GiphyAPI,
+    private val query: String
+) : PagingSource<Int, GifItem>(){
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GifItem> {
+        val position = params.key ?: 0
+
+        return try{
+            val response = repository.searchGifs(API_KEY, query, params.loadSize, position)
+            val gifs = response.body()?.data ?: emptyList()
+            val nextKey = if (gifs.isEmpty()) null else position + params.loadSize
+            LoadResult.Page(gifs, prevKey = if (position == 0) null else position - 1, nextKey)
+        } catch (exception: Exception) {
+            LoadResult.Error(exception)
+        }
+    }
+    override fun getRefreshKey(state: PagingState<Int, GifItem>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
+            val anchorPage = state.closestPageToPosition(anchorPosition)
+            anchorPage?.prevKey?.plus(40) ?: anchorPage?.nextKey?.minus(40)
+        }
+    }
+}

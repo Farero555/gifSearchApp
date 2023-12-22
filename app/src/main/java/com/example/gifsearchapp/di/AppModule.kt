@@ -29,6 +29,7 @@ object AppModule {
                     add(GifDecoder.Factory())
                 }
             }
+            .crossfade(true)
             .build()
     }
     @Provides

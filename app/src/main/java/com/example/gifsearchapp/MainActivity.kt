@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.ImageLoader
 import com.example.gifsearchapp.screens.GiphySearchViewModel
 import com.example.gifsearchapp.screens.SearchScreen
@@ -46,12 +46,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GiphySearchApp(giphySearchViewModel: GiphySearchViewModel, imageLoader: ImageLoader){
 
+    val lazyGifItem = giphySearchViewModel.data.collectAsLazyPagingItems()
 
     SearchScreen(imageLoader = imageLoader,
         getGifs = {
-            giphySearchViewModel.appendGiphyResponse(it)
+            giphySearchViewModel.updateQuery(it)
         },
-        data = giphySearchViewModel.data.collectAsState().value
+        data = lazyGifItem
 
     )
 
