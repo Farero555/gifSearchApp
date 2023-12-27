@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 
@@ -20,19 +21,28 @@ import javax.inject.Inject
 class GiphySearchViewModel @Inject constructor(private val repository: GiphyAPI): ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
+    private val _contentRating = MutableStateFlow("")
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val data: Flow<PagingData<GifItem>> = searchQuery
-        .flatMapLatest { query ->
-            Pager(PagingConfig(
-                pageSize = 40,
-                prefetchDistance = 20,
-            )){
-                GiphyRepository(repository, query)
-            }.flow
-        }.cachedIn(viewModelScope)
+    val data: Flow<PagingData<GifItem>> = combine(searchQuery, _contentRating) { query, contentRating ->
+        Pair(query, contentRating)
+    }.flatMapLatest { (query, contentRating) ->
+                Pager(
+                    PagingConfig(
+                        pageSize = 40,
+                        prefetchDistance = 20,
+                    )
+                ) {
+                    GiphyRepository(
+                        repository,
+                        query,
+                        if (contentRating == "All") "" else contentRating
+                    )
+                }.flow
+            }.cachedIn(viewModelScope)
 
-    fun updateQuery(newQuery: String) {
+    fun updateQuery(newQuery: String, contentRating: String) {
+        _contentRating.value = contentRating
         searchQuery.value = newQuery
     }
 }

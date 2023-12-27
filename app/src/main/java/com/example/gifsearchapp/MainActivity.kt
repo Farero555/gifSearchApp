@@ -40,8 +40,8 @@ fun GiphySearchApp(giphySearchViewModel: GiphySearchViewModel, imageLoader: Imag
     val lazyGifItem = giphySearchViewModel.data.collectAsLazyPagingItems()
 
     SearchScreen(imageLoader = imageLoader,
-        getGifs = {
-            giphySearchViewModel.updateQuery(it)
+        getGifs = { query, contentRating ->
+            giphySearchViewModel.updateQuery(query, contentRating)
         },
         data = lazyGifItem
     )

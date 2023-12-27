@@ -82,12 +82,12 @@ fun GifInputText(
                 keyboardController?.hide()
                 focusManager.clearFocus()
             }),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp),
 
         modifier = modifier
             .focusRequester(textFieldFocusRequester)
             .shadow(
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp),
                 elevation = 80.dp
             )
             .onFocusChanged {

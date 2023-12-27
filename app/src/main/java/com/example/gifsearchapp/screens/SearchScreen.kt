@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,15 +53,17 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.gifsearchapp.R
+import com.example.gifsearchapp.components.DropdownSearchBox
 import com.example.gifsearchapp.components.GifInputText
 import com.example.gifsearchapp.model.GifItem
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     imageLoader: ImageLoader,
-    getGifs: (String) -> Unit,
+    getGifs: (String, String) -> Unit,
     data: LazyPagingItems<GifItem>
 ){
     var searchQuery by remember{
@@ -71,6 +74,9 @@ fun SearchScreen(
     }
     var isDebouncing by remember {
         mutableStateOf(false)
+    }
+    var contentRating by remember {
+        mutableStateOf("")
     }
 
     Column(
@@ -107,17 +113,29 @@ fun SearchScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            GifInputText(
-                modifier = Modifier
-                    .padding(bottom = 14.dp, start = 16.dp, end = 16.dp)
-                    .fillMaxWidth(),
-                text = searchQuery,
-                maxLine = 1,
-                label = "Search",
-                onTextChange = {
-                    searchQuery = it
-                    isDebouncing = true
-                })
+            Row(
+                Modifier.padding(horizontal = 8.dp)
+            ) {
+                GifInputText(
+                    modifier = Modifier
+                        .padding(bottom = 14.dp)
+                        .width(250.dp),
+                    text = searchQuery,
+                    maxLine = 1,
+                    label = "Search",
+                    onTextChange = {
+                        searchQuery = it
+                        isDebouncing = true
+                    })
+                DropdownSearchBox(
+                    modifier = Modifier.padding(top = 8.dp),
+                    onTextChange = {
+                        contentRating = it.lowercase(Locale.getDefault())
+                        getGifs(searchQuery, contentRating)
+                    }
+                )
+            }
+
             if(data.itemCount != 0){
                 if(isGridView){
                     key(searchQuery){
@@ -159,7 +177,7 @@ fun SearchScreen(
     LaunchedEffect(searchQuery) {
         if (isDebouncing) {
             delay(300)
-            getGifs(searchQuery)
+            getGifs(searchQuery, contentRating)
             isDebouncing = false
         }
     }
@@ -234,7 +252,9 @@ fun GifItem(
                         .background(Color(0x2f17E7FC))
                 ){
                     AsyncImage(
-                        modifier = Modifier.fillMaxSize().clipToBounds(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clipToBounds(),
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(gifItem.images.fixed_width_still.url)
                             .crossfade(200)
