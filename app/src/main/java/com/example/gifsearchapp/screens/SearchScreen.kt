@@ -101,12 +101,12 @@ fun SearchScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Row(
-                Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth()
             ) {
                 GifInputText(
                     modifier = Modifier
-                        .padding(bottom = 14.dp)
-                        .width(250.dp),
+                        .weight(1f)
+                        .padding(bottom = 14.dp),
                     text = searchQuery.collectAsState().value,
                     maxLine = 1,
                     label = "Search",
@@ -114,7 +114,7 @@ fun SearchScreen(
                         onSearchQueryChange(it)
                     })
                 DropdownSearchBox(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier.padding(top = 8.dp).width(120.dp),
                     onTextChange = { rating ->
                         val lowerCaseRating = rating.lowercase(Locale.getDefault())
                         onContentRatingChange(lowerCaseRating)
