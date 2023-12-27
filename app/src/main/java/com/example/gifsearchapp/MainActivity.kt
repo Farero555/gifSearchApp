@@ -46,7 +46,10 @@ fun GiphySearchApp(giphySearchViewModel: GiphySearchViewModel, imageLoader: Imag
         onGridViewChange = giphySearchViewModel::onGridViewChange,
         onContentRatingChange = giphySearchViewModel::onContentRatingChange,
         imageLoader = imageLoader,
-        data = lazyGifItem
+        data = lazyGifItem,
+        shareGif = { context, bitlyUrl ->
+            giphySearchViewModel.shareGif(context, bitlyUrl)
+        }
     )
 }
 

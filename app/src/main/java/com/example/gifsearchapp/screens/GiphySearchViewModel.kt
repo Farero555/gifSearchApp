@@ -1,5 +1,7 @@
 package com.example.gifsearchapp.screens
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -67,5 +69,14 @@ class GiphySearchViewModel @Inject constructor(private val repository: GiphyAPI)
     }
     fun onContentRatingChange(newRating: String) {
         contentRating.value = newRating
+    }
+
+    fun shareGif(context: Context, gifUrl: String) {
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, gifUrl)
+            type = "text/plain"
+        }
+        context.startActivity(Intent.createChooser(shareIntent, null))
     }
 }

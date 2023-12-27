@@ -1,7 +1,10 @@
 package com.example.gifsearchapp.screens
 
+import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,8 +40,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,7 +69,8 @@ fun SearchScreen(
     onGridViewChange: (Boolean) -> Unit,
     onContentRatingChange: (String) -> Unit,
     imageLoader: ImageLoader,
-    data: LazyPagingItems<GifItem>
+    data: LazyPagingItems<GifItem>,
+    shareGif: (Context, String) -> Unit
 ){
 
     Column(
@@ -133,7 +139,8 @@ fun SearchScreen(
                                 data[index]?.let {
                                     GifItem(
                                         gifItem = it,
-                                        imageLoader = imageLoader
+                                        imageLoader = imageLoader,
+                                        shareGif = shareGif
                                     )
                                 }
                             }
@@ -148,7 +155,8 @@ fun SearchScreen(
                                 data[index]?.let {
                                     GifItem(
                                         gifItem = it,
-                                        imageLoader = imageLoader
+                                        imageLoader = imageLoader,
+                                        shareGif = shareGif
                                     )
                                 }
                             }
@@ -205,11 +213,15 @@ private fun StartScreen() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GifItem(
     gifItem: GifItem,
-    imageLoader: ImageLoader
+    imageLoader: ImageLoader,
+    shareGif: (Context, String) -> Unit
     ){
+    val haptics = LocalHapticFeedback.current
+    val context = LocalContext.current
 
     ElevatedCard(
         modifier = Modifier
@@ -224,7 +236,13 @@ fun GifItem(
             imageLoader = imageLoader,
             modifier = Modifier
                 .fillMaxSize()
-                .clipToBounds(),
+                .clipToBounds()
+                .combinedClickable(
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        shareGif(context, gifItem.bitly_url)
+                    }
+                ){},
             contentScale = ContentScale.Crop,
             loading = {
                 Box(
