@@ -18,7 +18,8 @@ class GiphyRepository(
             val response = repository.searchGifs(API_KEY, query, params.loadSize, position)
             val gifs = response.body()?.data ?: emptyList()
             val nextKey = if (gifs.isEmpty()) null else position + params.loadSize
-            LoadResult.Page(gifs, prevKey = if (position == 0) null else position - 1, nextKey)
+            val prevKey = if (position == 0) null else position - 1
+            LoadResult.Page(gifs, prevKey, nextKey)
         } catch (exception: Exception) {
             LoadResult.Error(exception)
         }

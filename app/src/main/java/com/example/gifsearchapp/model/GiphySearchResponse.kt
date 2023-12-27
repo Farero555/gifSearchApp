@@ -1,6 +1,5 @@
 package com.example.gifsearchapp.model
 
 data class GiphySearchResponse(
-    val data: List<GifItem>,
-    val pagination: Pagination
+    val data: List<GifItem>
 )

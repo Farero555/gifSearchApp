@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -62,7 +63,7 @@ fun SearchScreen(
     getGifs: (String) -> Unit,
     data: LazyPagingItems<GifItem>
 ){
-    var query by remember{
+    var searchQuery by remember{
         mutableStateOf("")
     }
     var isGridView by remember {
@@ -72,7 +73,7 @@ fun SearchScreen(
         mutableStateOf(false)
     }
 
-        Column(
+    Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -87,40 +88,22 @@ fun SearchScreen(
             },
             colors = TopAppBarDefaults.smallTopAppBarColors(Color.Transparent),
             actions = {
-                val activeTintColor = Color.Black
-                val inactiveTintColor = Color.Gray
+                ToggleListViewButton(
+                    isSelected = !isGridView,
+                    icon = Icons.Filled.ViewList,
+                    contentDescription = "List View",
+                ) { isGridView = !it }
 
-                IconToggleButton(
-                    checked = !isGridView,
-                    enabled = isGridView,
-                    onCheckedChange = {
-                        isGridView = !it
-                    }) {
-
-                    Icon(
-                        imageVector = Icons.Filled.ViewList,
-                        contentDescription = "List View",
-                        tint = if (isGridView) inactiveTintColor else activeTintColor,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-                IconToggleButton(
-                    checked = isGridView,
-                    enabled = !isGridView,
-                    onCheckedChange = { isGridView = it }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ViewModule,
-                        contentDescription = "Grid View",
-                        tint = if (isGridView) activeTintColor else inactiveTintColor,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+                ToggleListViewButton(
+                    isSelected = isGridView,
+                    icon = Icons.Filled.ViewModule,
+                    contentDescription = "Grid View"
+                ) { isGridView = it }
             }
         )
 
         Column(
-            modifier =Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -128,17 +111,16 @@ fun SearchScreen(
                 modifier = Modifier
                     .padding(bottom = 14.dp, start = 16.dp, end = 16.dp)
                     .fillMaxWidth(),
-                text = query,
+                text = searchQuery,
                 maxLine = 1,
                 label = "Search",
                 onTextChange = {
-                    query = it
+                    searchQuery = it
                     isDebouncing = true
-                    //getGifs(query)
                 })
             if(data.itemCount != 0){
                 if(isGridView){
-                    key(query){
+                    key(searchQuery){
                         LazyVerticalStaggeredGrid(
                             columns = StaggeredGridCells.Fixed(2),
                             modifier = Modifier.padding(16.dp)
@@ -146,7 +128,7 @@ fun SearchScreen(
                             items(data.itemCount){index->
                                 data[index]?.let {
                                     GifItem(
-                                        gifImage = it,
+                                        gifItem = it,
                                         imageLoader = imageLoader
                                     )
                                 }
@@ -155,13 +137,13 @@ fun SearchScreen(
                     }
 
                 }else{
-                    key(query){
+                    key(searchQuery){
                         LazyColumn(modifier = Modifier.padding(16.dp))
                         {
                             items(data.itemCount){index->
                                 data[index]?.let {
                                     GifItem(
-                                        gifImage = it,
+                                        gifItem = it,
                                         imageLoader = imageLoader
                                     )
                                 }
@@ -174,12 +156,36 @@ fun SearchScreen(
             }
         }
     }
-    LaunchedEffect(query) {
+    LaunchedEffect(searchQuery) {
         if (isDebouncing) {
             delay(300)
-            getGifs(query)
+            getGifs(searchQuery)
             isDebouncing = false
         }
+    }
+}
+
+@Composable
+fun ToggleListViewButton(
+    isSelected: Boolean,
+    icon: ImageVector,
+    contentDescription: String,
+    onToggle: (Boolean) -> Unit
+) {
+    val activeTintColor = Color.Black
+    val inactiveTintColor = Color.Gray
+
+    IconToggleButton(
+        checked = isSelected,
+        enabled = !isSelected,
+        onCheckedChange = onToggle
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = if (isSelected) activeTintColor else inactiveTintColor,
+            modifier = Modifier.size(32.dp)
+        )
     }
 }
 
@@ -204,7 +210,7 @@ private fun StartScreen() {
 
 @Composable
 fun GifItem(
-    gifImage: GifItem,
+    gifItem: GifItem,
     imageLoader: ImageLoader
     ){
 
@@ -213,12 +219,12 @@ fun GifItem(
         elevation = CardDefaults.cardElevation(2.dp)
     ){
         SubcomposeAsyncImage(
-            model = gifImage.images.fixed_width.webp,
-            contentDescription = null,
+            model = gifItem.images.fixed_width.webp,
+            contentDescription = gifItem.alt_text,
             imageLoader = imageLoader,
             modifier = Modifier
-                .height(gifImage.images.fixed_width.height.dp)
-                .width(gifImage.images.fixed_width.width.dp)
+                .height(gifItem.images.fixed_width.height.dp)
+                .width(gifItem.images.fixed_width.width.dp)
                 .clipToBounds(),
             contentScale = ContentScale.Crop,
             loading = {
@@ -230,7 +236,7 @@ fun GifItem(
                     AsyncImage(
                         modifier = Modifier.fillMaxSize().clipToBounds(),
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(gifImage.images.fixed_width_still.url)
+                            .data(gifItem.images.fixed_width_still.url)
                             .crossfade(200)
                             .build(),
                         contentDescription = null,
