@@ -29,12 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,32 +52,23 @@ import com.example.gifsearchapp.R
 import com.example.gifsearchapp.components.DropdownSearchBox
 import com.example.gifsearchapp.components.GifInputText
 import com.example.gifsearchapp.model.GifItem
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
+    searchQuery: MutableStateFlow<String>,
+    onSearchQueryChange: (String) -> Unit,
+    isGridView: Boolean,
+    onGridViewChange: (Boolean) -> Unit,
+    onContentRatingChange: (String) -> Unit,
     imageLoader: ImageLoader,
-    getGifs: (String, String) -> Unit,
     data: LazyPagingItems<GifItem>
 ){
-    var searchQuery by remember{
-        mutableStateOf("")
-    }
-    var isGridView by remember {
-        mutableStateOf(false)
-    }
-    var isDebouncing by remember {
-        mutableStateOf(false)
-    }
-    var contentRating by remember {
-        mutableStateOf("")
-    }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         TopAppBar(
@@ -98,13 +85,13 @@ fun SearchScreen(
                     isSelected = !isGridView,
                     icon = Icons.Filled.ViewList,
                     contentDescription = "List View",
-                ) { isGridView = !it }
+                ) { onGridViewChange(!it) }
 
                 ToggleListViewButton(
                     isSelected = isGridView,
                     icon = Icons.Filled.ViewModule,
                     contentDescription = "Grid View"
-                ) { isGridView = it }
+                ) { onGridViewChange(it) }
             }
         )
 
@@ -120,18 +107,17 @@ fun SearchScreen(
                     modifier = Modifier
                         .padding(bottom = 14.dp)
                         .width(250.dp),
-                    text = searchQuery,
+                    text = searchQuery.collectAsState().value,
                     maxLine = 1,
                     label = "Search",
                     onTextChange = {
-                        searchQuery = it
-                        isDebouncing = true
+                        onSearchQueryChange(it)
                     })
                 DropdownSearchBox(
                     modifier = Modifier.padding(top = 8.dp),
-                    onTextChange = {
-                        contentRating = it.lowercase(Locale.getDefault())
-                        getGifs(searchQuery, contentRating)
+                    onTextChange = { rating ->
+                        val lowerCaseRating = rating.lowercase(Locale.getDefault())
+                        onContentRatingChange(lowerCaseRating)
                     }
                 )
             }
@@ -172,13 +158,6 @@ fun SearchScreen(
             }else{
                 StartScreen()
             }
-        }
-    }
-    LaunchedEffect(searchQuery) {
-        if (isDebouncing) {
-            delay(300)
-            getGifs(searchQuery, contentRating)
-            isDebouncing = false
         }
     }
 }
@@ -233,7 +212,10 @@ fun GifItem(
     ){
 
     ElevatedCard(
-        modifier = Modifier.padding(4.dp),
+        modifier = Modifier
+            .padding(4.dp)
+            .height(gifItem.images.fixed_width.height.dp)
+            .width(gifItem.images.fixed_width.width.dp),
         elevation = CardDefaults.cardElevation(2.dp)
     ){
         SubcomposeAsyncImage(
@@ -241,8 +223,7 @@ fun GifItem(
             contentDescription = gifItem.alt_text,
             imageLoader = imageLoader,
             modifier = Modifier
-                .height(gifItem.images.fixed_width.height.dp)
-                .width(gifItem.images.fixed_width.width.dp)
+                .fillMaxSize()
                 .clipToBounds(),
             contentScale = ContentScale.Crop,
             loading = {
