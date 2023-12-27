@@ -49,7 +49,9 @@ fun GiphySearchApp(giphySearchViewModel: GiphySearchViewModel, imageLoader: Imag
         data = lazyGifItem,
         shareGif = { context, bitlyUrl ->
             giphySearchViewModel.shareGif(context, bitlyUrl)
-        }
+        },
+        isNetworkAvailable = giphySearchViewModel::isNetworkAvailable
+
     )
 }
 

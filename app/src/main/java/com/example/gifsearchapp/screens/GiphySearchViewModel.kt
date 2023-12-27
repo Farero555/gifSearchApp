@@ -2,6 +2,8 @@ package com.example.gifsearchapp.screens
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -61,8 +63,6 @@ class GiphySearchViewModel @Inject constructor(private val repository: GiphyAPI)
             delay(450)
             apiSearchQuery.value = newQuery
         }
-
-
     }
     fun onGridViewChange(isGrid: Boolean) {
         isGridView = isGrid
@@ -78,5 +78,11 @@ class GiphySearchViewModel @Inject constructor(private val repository: GiphyAPI)
             type = "text/plain"
         }
         context.startActivity(Intent.createChooser(shareIntent, null))
+    }
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 }

@@ -70,7 +70,9 @@ fun SearchScreen(
     onContentRatingChange: (String) -> Unit,
     imageLoader: ImageLoader,
     data: LazyPagingItems<GifItem>,
-    shareGif: (Context, String) -> Unit
+    shareGif: (Context, String) -> Unit,
+    isNetworkAvailable: (Context) -> Boolean
+
 ){
 
     Column(
@@ -107,7 +109,9 @@ fun SearchScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Row(
-                modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth()
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth()
             ) {
                 GifInputText(
                     modifier = Modifier
@@ -120,7 +124,9 @@ fun SearchScreen(
                         onSearchQueryChange(it)
                     })
                 DropdownSearchBox(
-                    modifier = Modifier.padding(top = 8.dp).width(120.dp),
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .width(120.dp),
                     onTextChange = { rating ->
                         val lowerCaseRating = rating.lowercase(Locale.getDefault())
                         onContentRatingChange(lowerCaseRating)
@@ -128,14 +134,18 @@ fun SearchScreen(
                 )
             }
 
-            if(data.itemCount != 0){
-                if(isGridView){
-                    key(searchQuery){
+            if (!isNetworkAvailable(LocalContext.current)) {
+                Text("No internet connection", color = Color.Red, modifier = Modifier.padding(16.dp))
+            } else if (data.itemCount == 0) {
+                StartScreen()
+            } else {
+                if (isGridView) {
+                    key(searchQuery) {
                         LazyVerticalStaggeredGrid(
                             columns = StaggeredGridCells.Fixed(2),
                             modifier = Modifier.padding(16.dp)
-                        ){
-                            items(data.itemCount){index->
+                        ) {
+                            items(data.itemCount) { index ->
                                 data[index]?.let {
                                     GifItem(
                                         gifItem = it,
@@ -147,11 +157,11 @@ fun SearchScreen(
                         }
                     }
 
-                }else{
-                    key(searchQuery){
+                } else {
+                    key(searchQuery) {
                         LazyColumn(modifier = Modifier.padding(16.dp))
                         {
-                            items(data.itemCount){index->
+                            items(data.itemCount) { index ->
                                 data[index]?.let {
                                     GifItem(
                                         gifItem = it,
@@ -163,8 +173,6 @@ fun SearchScreen(
                         }
                     }
                 }
-            }else{
-                StartScreen()
             }
         }
     }
@@ -201,6 +209,7 @@ private fun StartScreen() {
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier.fillMaxSize(),
     ) {
+
 
         Image(
             painter = painterResource(id = R.drawable.powered_by_giphy),
@@ -242,7 +251,7 @@ fun GifItem(
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         shareGif(context, gifItem.bitly_url)
                     }
-                ){},
+                ) {},
             contentScale = ContentScale.Crop,
             loading = {
                 Box(
