@@ -29,7 +29,7 @@ object AppModule {
                     add(GifDecoder.Factory())
                 }
             }
-            .crossfade(true)
+            .allowHardware(true)
             .build()
     }
     @Provides

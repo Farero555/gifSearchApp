@@ -11,8 +11,7 @@ interface GiphyAPI {
         @Query("api_key") apiKey: String,
         @Query("q") query: String,
         @Query("limit") limit: Int,
-        @Query("offset") offset: Int,
-        //@Query("rating") rating: String
+        @Query("offset") offset: Int
 
     ): Response<GiphySearchResponse>
 }

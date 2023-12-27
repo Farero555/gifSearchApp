@@ -1,6 +1,11 @@
 package com.example.gifsearchapp.components
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -15,13 +20,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import com.example.gifsearchapp.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -42,20 +51,27 @@ fun GifInputText(
         value = text,
         onValueChange = onTextChange,
         colors = TextFieldDefaults.textFieldColors(
-            containerColor = Color.Transparent,
-            focusedLabelColor = Color.DarkGray,
+            containerColor = Color.White,
             unfocusedLabelColor = Color.LightGray,
             cursorColor = Color.DarkGray,
             selectionColors = TextSelectionColors(
                 handleColor = Color.DarkGray,
-                backgroundColor = Color.DarkGray
+                backgroundColor = Color.White
             ),
-            unfocusedIndicatorColor = Color.LightGray,
+            unfocusedIndicatorColor = Color.White,
             focusedIndicatorColor = Color.DarkGray
         ),
         maxLines = maxLine,
         label = {
-            Text(text = label)
+            if(!isTextFieldFocused && text.isEmpty()){
+                Row{
+                    Image(
+                        painter = painterResource(id = R.drawable.search_icon),
+                        contentDescription = "Search Icon")
+                    Spacer(modifier = Modifier.size(5.dp))
+                    Text(text = label)
+                }
+            }
         },
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = ImeAction.Done
@@ -66,12 +82,18 @@ fun GifInputText(
                 keyboardController?.hide()
                 focusManager.clearFocus()
             }),
+        shape = RoundedCornerShape(20.dp),
 
         modifier = modifier
             .focusRequester(textFieldFocusRequester)
+            .shadow(
+                shape = RoundedCornerShape(20.dp),
+                elevation = 80.dp
+            )
             .onFocusChanged {
                 isTextFieldFocused = it.isFocused
             },
+
     )
     BackHandler(enabled = isTextFieldFocused) {
         keyboardController?.hide()

@@ -78,6 +78,9 @@ dependencies {
     // Pagination
     implementation("androidx.paging:paging-compose:3.3.0-alpha02")
 
+    // Icons
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
+
     // Tests
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
     testImplementation("com.squareup.retrofit2:retrofit:2.9.0")
