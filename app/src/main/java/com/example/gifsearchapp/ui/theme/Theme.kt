@@ -16,11 +16,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-//private val DarkColorScheme = darkColorScheme(
-//    primary = Color(0xAF0A9DA7),
-//    secondary = PurpleGrey80,
-//    tertiary = Pink80
-//)
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xAF0A9DA7),//Color.White,
@@ -40,21 +35,10 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun GifSearchAppTheme(
-    //darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    //dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = LightColorScheme
-//        when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//
-//        darkTheme -> DarkColorScheme
-//        else -> LightColorScheme
-//    }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

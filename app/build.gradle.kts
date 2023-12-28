@@ -55,6 +55,7 @@ dependencies {
 
     // Dagger- Hilt
     implementation("com.google.dagger:hilt-android:2.48.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     ksp("com.google.dagger:hilt-compiler:2.48.1")
 
 
@@ -82,9 +83,12 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
     // Tests
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
-    testImplementation("com.squareup.retrofit2:retrofit:2.9.0")
-    testImplementation("com.squareup.retrofit2:converter-gson:2.9.0")
+//    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
+//    testImplementation("com.squareup.retrofit2:retrofit:2.9.0")
+//    testImplementation("com.squareup.retrofit2:converter-gson:2.9.0")
+//    testImplementation("io.mockk:mockk:1.12.0")
+//    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")

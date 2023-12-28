@@ -93,7 +93,6 @@ fun GifInputText(
             .onFocusChanged {
                 isTextFieldFocused = it.isFocused
             },
-
     )
     BackHandler(enabled = isTextFieldFocused) {
         keyboardController?.hide()

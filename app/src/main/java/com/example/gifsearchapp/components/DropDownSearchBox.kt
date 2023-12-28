@@ -64,7 +64,6 @@ fun DropdownSearchBox(
                     focusedIndicatorColor = Color.DarkGray
                 ),
                 shape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
-
             )
 
             ExposedDropdownMenu(
